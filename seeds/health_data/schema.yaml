@@ -1,0 +1,51 @@
+version: 2
+
+seeds:
+  - name: allcauseunplanned30_dayhospitalreadmissionratecalifornia2011_2023
+    description: >
+      California acute care hospital admissions and all-cause unplanned
+      30-day readmission rates, stratified by year, strata, and county.
+      Includes ICD-9 and ICD-10 measures. Raw seed data loaded as strings
+      to preserve source fidelity.
+
+    columns:
+
+      - name: Year
+        description: "Year of discharge"
+        data_type: string
+
+      - name: Strata
+        description: "Stratification category (Age, Sex, Race-Ethnicity, Expected Payer)"
+        data_type: string
+
+      - name: Strata Name
+        description: "Detailed value for each stratum"
+        data_type: string
+
+      - name: County
+        description: "County of patient residence"
+        data_type: string
+
+      - name: Total Admits (ICD-9)
+        description: "Number of total admissions in California acute care hospitals (ICD-9)"
+        data_type: string
+
+      - name: 30-day Readmits (ICD-9)
+        description: "Number of all-cause unplanned 30-day readmissions (ICD-9)"
+        data_type: string
+
+      - name: 30-day Readmission Rate (ICD-9)
+        description: "Unadjusted statewide 30-day readmission rate (ICD-9), reported as a percentage"
+        data_type: string
+
+      - name: Total Admits (ICD-10)
+        description: "Number of total admissions in California acute care hospitals (ICD-10)"
+        data_type: string
+
+      - name: 30-day Readmits (ICD-10)
+        description: "Number of all-cause unplanned 30-day readmissions (ICD-10)"
+        data_type: string
+
+      - name: 30-day Readmission Rate (ICD-10)
+        description: "Unadjusted statewide 30-day readmission rate (ICD-10), reported as a percentage"
+        data_type: string

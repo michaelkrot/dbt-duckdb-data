@@ -1,0 +1,41 @@
+name: misterkrot_dbt_project
+version: '1.0'
+config-version: 2
+require-dbt-version: [">=1.10.0", "<2.0.0"]
+
+profile: misterkrot_dbt_project
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_modules"
+
+
+models:
+  misterkrot_dbt_project:
+    +schema: model_schema
+    +materialized: table
+
+seeds:
+  misterkrot_dbt_project:
+    +schema: seed_schema 
+    health_data:
+      allcauseunplanned30_dayhospitalreadmissionratecalifornia2011_2023:
+        +column_types:
+          Year: string
+          Strata: string
+          "Strata Name": string
+          County: string
+          "Total Admits (ICD-9)": string
+          "30-day Readmits (ICD-9)": string
+          "30-day Readmission Rate (ICD-9)": string
+          "Total Admits (ICD-10)": string
+          "30-day Readmits (ICD-10)": string
+          "30-day Readmission Rate (ICD-10)": string
+

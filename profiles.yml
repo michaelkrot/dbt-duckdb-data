@@ -1,0 +1,11 @@
+misterkrot_dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: duck_db/my_duckdb.db
+      threads: 4
+    prod:
+      type: duckdb
+      path: /app/data/my_duckdb.db
+      threads: 4
