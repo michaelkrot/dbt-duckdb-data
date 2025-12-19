@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: seed_data
+    description: "Seed data generally"
+    schema: raw
+    tables:
+      - name: readmissions_seed
+        description: "California hospital readmission rates seed data"

@@ -1,7 +1,7 @@
 version: 2
 
 seeds:
-  - name: allcauseunplanned30_dayhospitalreadmissionratecalifornia2011_2023
+  - name: readmissions_seed
     description: >
       California acute care hospital admissions and all-cause unplanned
       30-day readmission rates, stratified by year, strata, and county.

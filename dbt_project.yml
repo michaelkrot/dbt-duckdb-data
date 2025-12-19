@@ -1,9 +1,9 @@
-name: misterkrot_dbt_project
+name: duckdb_dbt_project
 version: '1.0'
 config-version: 2
 require-dbt-version: [">=1.10.0", "<2.0.0"]
 
-profile: misterkrot_dbt_project
+profile: duckdb_dbt_project
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
@@ -14,28 +14,29 @@ macro-paths: ["macros"]
 target-path: "target"
 clean-targets:
   - "target"
-  - "dbt_modules"
+  - "dbt-packages"
+  - "logs"
+  - "duck_db/my_duck_db.db"
 
 
 models:
-  misterkrot_dbt_project:
-    +schema: model_schema
+  duckdb_dbt_project:
+    +schema: models
     +materialized: table
 
 seeds:
-  misterkrot_dbt_project:
-    +schema: seed_schema 
+  duckdb_dbt_project:
+    +schema: raw
     health_data:
-      allcauseunplanned30_dayhospitalreadmissionratecalifornia2011_2023:
+      readmissions_seed:
         +column_types:
-          Year: string
-          Strata: string
-          "Strata Name": string
-          County: string
-          "Total Admits (ICD-9)": string
-          "30-day Readmits (ICD-9)": string
-          "30-day Readmission Rate (ICD-9)": string
-          "Total Admits (ICD-10)": string
-          "30-day Readmits (ICD-10)": string
-          "30-day Readmission Rate (ICD-10)": string
-
+          "Year": varchar
+          "Strata": varchar
+          "Strata Name": varchar
+          "County": varchar
+          "Total Admits (ICD-9)": varchar
+          "30-day Readmits (ICD-9)": varchar
+          "30-day Readmission Rate (ICD-9)": varchar
+          "Total Admits (ICD-10)": varchar
+          "30-day Readmits (ICD-10)": varchar
+          "30-day Readmission Rate (ICD-10)": varchar
