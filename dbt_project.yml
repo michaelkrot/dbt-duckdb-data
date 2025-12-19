@@ -16,8 +16,6 @@ clean-targets:
   - "target"
   - "dbt-packages"
   - "logs"
-  - "duck_db/my_duck_db.db"
-
 
 models:
   duckdb_dbt_project:
