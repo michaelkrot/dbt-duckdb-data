@@ -1,18 +1,54 @@
-## Project Overview
-This project models California hospital readmission data using dbt + DuckDB.
+## Why This Project?
+- Demonstrates end-to-end data engineering on **messy real-world data** (string percentages, suppressed values '*', ICD-9/ICD-10 transition)
+- Handles common challenges: defensive parsing, early data filtering, reusable custom macros
+- Produces healthcare disparities insights (e.g., by county, demographics, payer)
+- Includes an **interactive Streamlit dashboard** for exploration
 
-## Design Principles
-- Raw data preserved as-is in seeds
-- All type coercion happens in staging models
-- Percent fields stored as strings in raw, parsed in models
+## Key Features & Recent Updates
+- **Staging layer**: Basic cleaning and source definition
+- **Custom macro** (`convert_pct`): Reusable logic for parsing percentage strings
+- **Clean mart** (`fct_readmissions_clean`): Unified numeric rates, early suppression filtering, macro reuse for consistency
+- **Interactive dashboard**: Top counties, year-over-year trends, filters by year/strata
+- Data quality: Excludes suppressed low-volume data for reliable analytics
 
-## Advanced Features
+## Tech Stack
+- dbt Core
+- DuckDB (lightweight analytics database)
+- Streamlit + Plotly (interactive visualization)
+- Python (dashboard)
 
-- **Snapshots:** Track historical trends in readmission rates.
-- **Macros:** Reusable SQL functions, e.g., converting percentages to decimal values.
-- **Analyses:** Exploration queries for insights, without creating permanent tables.
+## Data Source
+Public dataset from California Health and Human Services Open Data Portal:  
+[All-Cause Unplanned 30-Day Hospital Readmission Rate](https://data.chhs.ca.gov/dataset/all-cause-unplanned-30-day-hospital-readmission-rate-california)
 
-This demonstrates best practices for dbt projects and shows readiness for real-world data engineering tasks.  Admittedly, this is a pretty small example.
+https://healthdata.gov/State/All-Cause-Unplanned-30-Day-Hospital-Readmission-Ra/mikx-ck6c/about_data
+
+I had to clean up the newlines/carriage returns:
+```bash
+sed -i '' -e 's/[[:space:]]*$//' -e 's/\r//g' seeds/health_data/allcauseunplanned30_dayhospitalreadmissionratecalifornia2011_2023.csv
+```
+I also to manually had to delete spaces at the end of the original data columns.  Why were there? ```¯\_(ツ)_/¯```
+
+## Quick Start
+```bash
+git clone https://github.com/michaelkrot/dbt-duckdb-data.git
+cd dbt-duckdb-data
+
+# Install dependencies
+pip install dbt-duckdb streamlit plotly duckdb
+
+# Build the pipeline (loads seed, runs models/tests)
+dbt build
+
+# View data lineage & documentation
+dbt docs generate
+dbt docs serve
+
+
+##To Run the dahsboard
+dbt build  # Ensure latest data
+streamlit run dashboards/app.py
+
 
 
 ## Known Limitations
@@ -33,42 +69,21 @@ This project includes a CSV seed file (`readmissions_seed.csv`) containing Calif
 dbt seed --full-refresh
 ```
 
-Seed data was downloaded from:
-https://healthdata.gov/State/All-Cause-Unplanned-30-Day-Hospital-Readmission-Ra/mikx-ck6c/about_data
-
-I had to clean up the newlines/carriage returns:
-```bash
-sed -i '' -e 's/[[:space:]]*$//' -e 's/\r//g' seeds/health_data/allcauseunplanned30_dayhospitalreadmissionratecalifornia2011_2023.csv
-```
-
-I also to manually had to delete spaces at the end of the original data columns.  Why were there? ```¯\_(ツ)_/¯```
-
-## General notes for reference while working (clean up later)
-To run locally:
-
-dbt build --full-refresh
 
 
-To run in docker:
+## Notes for later 
 
-docker build -t dbt-duckdb .
-docker run dbt-duckdb run 
-
-
-
-
-
-
-To run with persistent duckdb database for later:
+Running prod target in docker:
 
 docker run -e DBT_TARGET=prod dbt-duckdb → runs dbt build --target prod
 
+Dev is default like so:
 docker run dbt-duckdb → runs dbt build --target dev (default)
 
-docker run dbt-duckdb run --models my_model → runs dbt run --models my_model --target dev (or prod if env var set)
+To run with in docker persistent duckdb database locally (outside of docker):
 
-docker run --rm   -v $(pwd)/data:/app/data  dbt-duckdb run
+docker run --rm  -v /tmp/foobar:/app/data  -e DBT_TARGET=prod  dbt-duckdb
 
-docker run --rm  -v /Users/michaelkrot/Desktop:/app/data  -e DBT_TARGET=prod  dbt-duckdb
+Writes to local /tmp/foobar directory for docker.
 
- dbt build --full-refresh
+This is not ideal (writing to desktop), but wanted to play around with moving the duckdb around in later work for further analysis/viz/mcp server stuff.
