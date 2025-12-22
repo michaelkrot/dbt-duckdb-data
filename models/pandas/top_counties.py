@@ -1,6 +1,8 @@
 # models/pandas/top_counties.py
 import pandas as pd
 
+
+# realistically using pandas here is overkill, this is more to show this is possible in DBT
 def model(dbt, session):
     # Load the dbt model as a Pandas DataFrame
     df = dbt.ref("stg_ca_admissions").to_df()  # <- fixed from .to_pandas()
@@ -18,8 +20,7 @@ def model(dbt, session):
         .agg(avg_readmission_rate=("readmission_rate_30_day_icd9", "mean"))
     )
 
-    # Sort descending and take top 10
-    result = result.sort_values("avg_readmission_rate", ascending=False).head(10)
+    result = result.sort_values("avg_readmission_rate", ascending=False)
 
     return result
 

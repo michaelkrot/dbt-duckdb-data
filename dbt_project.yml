@@ -21,6 +21,9 @@ models:
   duckdb_dbt_project:
     +schema: models
     +materialized: table
+    marts:
+      +materialized: table   # Or view if small
+      +schema: marts
 
 seeds:
   duckdb_dbt_project:
