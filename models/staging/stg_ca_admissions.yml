@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: stg_ca_admissions
+    description: |
+      Staging model for California hospital 30-day readmission rates.
+      - Converts percentage strings to decimals using custom macro
+      - Handles separate ICD-9 and ICD-10 periods
+      - Basic cleaning and type casting
+
+    columns:
+      - name: county
+        tests:
+          - not_null
+
+      - name: year
+        description: "Reporting year"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+      
+      - name: strata
+        tests:
+          - not_null
+
+      - name: strata_name
+        tests:
+          - not_null
+
+      - name: readmission_rate_30_day_icd9
+        description: "30-day readmission rate (ICD-9 era) as decimal"
+        tests:
+          - valid_readmission_rate
+
+      - name: readmission_rate_30_day_icd10
+        description: "30-day readmission rate (ICD-10 era) as decimal"
+        tests:
+          - valid_readmission_rate
+
+tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - county
+              - year
+              - strata
+              - strata_name
