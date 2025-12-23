@@ -83,4 +83,21 @@ dbt seed --full-refresh
 One-command reproducible dbt docs—no local setup required!
 
 ```bash
-docker run -it -p 8080:8080 -v $(pwd):/app -w /app dbt-duckdb-data docs
+docker run -it -p 8080:8080 -v $(pwd):/app -w /app dbt-duckdb-data docs```
+
+### Live Interactive Dashboard
+Explore hospital readmission insights hands-on—one command!
+
+```bash
+docker run -it -p 8501:8501 -v $(pwd):/app -w /app dbt-duckdb-data dashboard```
+
+### Full Interactive Experience (Dashboard + Lineage)
+One command for dashboard and lineage - no local setup!
+
+```bash
+docker run -it -p 8501:8501 -p 8080:8080 -v $(pwd):/app -w /app dbt-duckdb-data both```
+
+The `-v $(pwd):/app` mounts your local project into the container:
+- Live code edits (no rebuild needed)
+- Persistent DuckDB file with latest modeled data
+- Zero-friction local development/demo

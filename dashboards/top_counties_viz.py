@@ -1,20 +1,22 @@
 import streamlit as st
 import duckdb
+import pandas as pd
 import plotly.express as px
 
-# Page config — makes it look like a real app
+# Page config
 st.set_page_config(page_title="CA Hospital Readmissions", layout="wide")
 st.title("California 30-Day Hospital Readmissions Dashboard")
 st.markdown("Built with **dbt + DuckDB** → Clean data in `fct_readmissions_clean`")
 
-# Connect to your DuckDB file (adjust path if you switched to dev/prod)
-con = duckdb.connect(database='data/dev_duckdb.db', read_only=True)
-# If you adopted the dev/prod setup: use 'data/dev.duckdb' or 'data/prod.duckdb'
+# Create DuckDB connection (POINT THIS TO YOUR DB FILE)
+con = duckdb.connect("data/dev_duckdb.db", read_only=True)
 
-# Load the clean fact table once
-@st.cache_data
+# Load data (cached)
+@st.cache_data(ttl=3600)
 def load_data():
-    return con.execute("SELECT * FROM dev_marts.fct_readmissions_clean").df()
+    return con.execute(
+        "SELECT * FROM dev_marts.fct_readmissions_clean"
+    ).df()
 
 df = load_data()
 

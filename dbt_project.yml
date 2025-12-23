@@ -2,8 +2,12 @@ name: duckdb_dbt_project
 version: '1.0'
 config-version: 2
 require-dbt-version: [">=1.10.0", "<2.0.0"]
-
 profile: duckdb_dbt_project
+
+
+# turning off snapshots as duckdb was hanging
+snapshots:
+  +enabled: false
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
@@ -18,6 +22,7 @@ clean-targets:
   - "logs"
 
 models:
+  +threads: 4
   duckdb_dbt_project:
     +schema: models
     +materialized: table
