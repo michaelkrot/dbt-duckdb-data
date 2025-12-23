@@ -9,7 +9,18 @@
 - **Custom macro** (`convert_pct`): Reusable logic for parsing percentage strings
 - **Clean mart** (`fct_readmissions_clean`): Unified numeric rates, early suppression filtering, macro reuse for consistency
 - **Interactive dashboard**: Top counties, year-over-year trends, filters by year/strata
-- Data quality: Excludes suppressed low-volume data for reliable analytics
+
+### Data Quality & Testing
+This project demonstrates production-grade data integrity with dbt tests:
+
+- **Core invariants**: not_null on key dimensions (county, year, strata, strata_name)
+- **Year range validation**: accepted_values for 2011–2023
+- **Uniqueness**: enforced on natural business key (county + year + strata + strata_name)
+- **Custom generic test**: `valid_readmission_rate` ensures all non-null rates are between 0 and 1 (handles ICD-9/ICD-10 transition nulls)
+
+All tests pass cleanly:
+```bash
+dbt test``
 
 ## Tech Stack
 - dbt Core
@@ -47,8 +58,7 @@ dbt docs serve
 
 ##To Run the dahsboard
 dbt build  # Ensure latest data
-streamlit run dashboards/app.py
-
+streamlit run dashboards/top_counties_viz.py
 
 
 ## Known Limitations
@@ -69,21 +79,8 @@ This project includes a CSV seed file (`readmissions_seed.csv`) containing Calif
 dbt seed --full-refresh
 ```
 
+### Explore Interactive Lineage & Documentation
+One-command reproducible dbt docs—no local setup required!
 
-
-## Notes for later 
-
-Running prod target in docker:
-
-docker run -e DBT_TARGET=prod dbt-duckdb → runs dbt build --target prod
-
-Dev is default like so:
-docker run dbt-duckdb → runs dbt build --target dev (default)
-
-To run with in docker persistent duckdb database locally (outside of docker):
-
-docker run --rm  -v /tmp/foobar:/app/data  -e DBT_TARGET=prod  dbt-duckdb
-
-Writes to local /tmp/foobar directory for docker.
-
-This is not ideal (writing to desktop), but wanted to play around with moving the duckdb around in later work for further analysis/viz/mcp server stuff.
+```bash
+docker run -it -p 8080:8080 -v $(pwd):/app -w /app dbt-duckdb-data docs

@@ -1,49 +1,54 @@
--- models/marts/core/fct_readmissions_clean.sql
--- Using existing convert_pct macro with defensive handling for '*'
-
 {{ config(materialized='table') }}
 
-WITH source AS (
-    SELECT *
-    FROM {{ ref('stg_ca_admissions') }}
-),
+select
+  county,
+  year,
+  strata,
+  strata_name,
 
-filtered AS (
-    SELECT *
-    FROM source
-    WHERE 
-        (CAST(readmission_rate_30_day_icd10 AS VARCHAR) NOT IN ('*', '') 
-         OR CAST(readmission_rate_30_day_icd9 AS VARCHAR) NOT IN ('*', ''))
-),
+  -- Unified readmission rate (already cleaned decimal from macro, no comma issue)
+  coalesce(readmission_rate_30_day_icd10, readmission_rate_30_day_icd9) as readmission_rate_pct,
 
-cleaned AS (
-    SELECT
-        county,
-        year,
-        strata,
+  -- Unified readmission count (clean commas + safe cast to int)
+  coalesce(
+    try_cast(replace(readmits_30_day_icd10, ',', '') as int),
+    try_cast(replace(readmits_30_day_icd9, ',', '') as int)
+  ) as readmits_count,
 
-        -- Reuse your convert_pct macro safely:
-        -- First strip '*', then apply macro (which strips '%' and /100)
-        -- Multiply by 100 to keep as percentage (14.5 instead of 0.145)
-        COALESCE(
-            {{ convert_pct("REPLACE(CAST(readmission_rate_30_day_icd10 AS VARCHAR), '*', '')") }} * 100,
-            {{ convert_pct("REPLACE(CAST(readmission_rate_30_day_icd9 AS VARCHAR), '*', '')") }} * 100
-        ) AS readmission_rate_pct,
+  -- Unified total admissions (same cleaning)
+  coalesce(
+    try_cast(replace(total_admits_icd10, ',', '') as int),
+    try_cast(replace(total_admits_icd9, ',', '') as int)
+  ) as total_admissions,
 
-        -- Integer fields — safe parsing
-        COALESCE(
-            TRY_CAST(REPLACE(CAST(readmits_30_day_icd10 AS VARCHAR), '*', '') AS INTEGER),
-            TRY_CAST(REPLACE(CAST(readmits_30_day_icd9 AS VARCHAR), '*', '') AS INTEGER)
-        ) AS readmits_count,
+  -- Preserve originals for transparency
+  readmission_rate_30_day_icd9,
+  readmission_rate_30_day_icd10,
+  readmits_30_day_icd9,
+  readmits_30_day_icd10,
+  total_admits_icd9,
+  total_admits_icd10
 
-        COALESCE(
-            TRY_CAST(CAST(total_admits_icd10 AS VARCHAR) AS INTEGER),
-            TRY_CAST(CAST(total_admits_icd9 AS VARCHAR) AS INTEGER)
-        ) AS total_admissions
+from {{ ref('stg_ca_admissions') }}
+where
+  -- Filter using the cleaned/unified values
+  coalesce(
+    try_cast(replace(readmits_30_day_icd10, ',', '') as int),
+    try_cast(replace(readmits_30_day_icd9, ',', '') as int)
+  ) is not null
+  and coalesce(
+    try_cast(replace(readmits_30_day_icd10, ',', '') as int),
+    try_cast(replace(readmits_30_day_icd9, ',', '') as int)
+  ) >= 0
 
-    FROM filtered
-)
+  and coalesce(
+    try_cast(replace(total_admits_icd10, ',', '') as int),
+    try_cast(replace(total_admits_icd9, ',', '') as int)
+  ) is not null
+  and coalesce(
+    try_cast(replace(total_admits_icd10, ',', '') as int),
+    try_cast(replace(total_admits_icd9, ',', '') as int)
+  ) > 0
 
-SELECT *
-FROM cleaned
-WHERE readmission_rate_pct IS NOT NULL
+  and coalesce(readmission_rate_30_day_icd10, readmission_rate_30_day_icd9) is not null
+  and coalesce(readmission_rate_30_day_icd10, readmission_rate_30_day_icd9) >= 0

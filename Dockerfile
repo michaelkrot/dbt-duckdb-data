@@ -17,6 +17,10 @@ COPY . .
 
 RUN chmod +x docker-entrypoint.sh
 
+EXPOSE 8501
+
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
+
 # Explicit bash avoids exec format errors
 ENTRYPOINT ["bash", "./docker-entrypoint.sh"]
 

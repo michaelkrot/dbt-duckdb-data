@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: fct_readmissions_clean
+    description: >
+      Clean analytical mart with unified readmission metrics across ICD-9/ICD-10 eras.
+      Comma-separated counts cleaned, suppressed/null rows strictly filtered.
+
+    columns:
+      - name: county
+        tests:
+          - not_null
+
+      - name: year
+        tests:
+          - not_null
+
+      - name: strata
+        tests:
+          - not_null
+
+      - name: strata_name
+        tests:
+          - not_null
+
+      - name: readmission_rate_pct
+        description: "Unified 30-day readmission rate as percentage (e.g., 15.2)"
+        tests:
+          - not_null
+          - valid_readmission_rate  # Custom generic for 0–100 range
+
+      - name: readmits_count
+        description: "Unified number of 30-day readmissions (commas removed)"
+        tests:
+          - not_null
+
+      - name: total_admissions
+        description: "Unified total index admissions (commas removed)"
+        tests:
+          - not_null
+          # Removed expression_is_true >0 — enforced by mart WHERE filter
+
+    tests:
+      - dbt_utils.at_least_one:
+          column_name: year

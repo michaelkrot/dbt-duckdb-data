@@ -10,15 +10,18 @@ env.bak/
 venv.bak/
 
 
+
 # Visual Studio Code
 #  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
 #  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #  and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
-
+dbt_packages/
+package-lock.yml
 package-lock.json
-my_duckdb.db
+dev_duckdb.db
 .user.yml
 logs/
 target/
+snapshots/
