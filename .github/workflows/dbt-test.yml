@@ -47,7 +47,7 @@ jobs:
       - name: Create dbt profile for CI
         run: |
           mkdir -p ./data
-          echo -e "duckdb_dbt_project:\n  target: ci\n  outputs:\n    ci:\n      type: duckdb\n      path: /app/data/ci_duckdb.db\n      threads: 4" > ./profiles.yml
+          echo -e "duckdb_dbt_project:\n  target: ci\n  outputs:\n    ci:\n      type: duckdb\n      path: /app/data/dev_duckdb.db\n      threads: 4" > ./profiles.yml
 
       # -----------------------------
       # Run all dbt commands in a single container
