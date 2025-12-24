@@ -1,0 +1,33 @@
+name: dbt Test CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t dbt-project .
+
+      - name: Run dbt test in container
+        run: |
+          docker run --rm \
+            -v $(pwd):/app \
+            -w /app \
+            dbt-project dbt deps && dbt test
+
+      - name: Run dbt build in container (optional)
+        run: |
+          docker run --rm \
+            -v $(pwd):/app \
+            -w /app \
+            dbt-project dbt build
+        if: success()

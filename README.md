@@ -100,13 +100,19 @@ All tests pass:
 dbt test
 ```
 
+![dbt Test CI](https://github.com/michaelkrot/dbt-duckdb-data/workflows/dbt%20Test%20CI/badge.svg)
+
+### Continuous Integration
+- Tests run in the same Docker image as the demo — guaranteed consistency
+- `dbt test` (and optional build) on every push/PR
+
 ## Technical Decisions & Lessons Learned
 
 - COALESCE for ICD-9/ICD-10 unification — gracefully handles transition, prefers newer standard
 - Early filtering of suppressed values — shift-left quality to prevent propagation
 - Custom macroconvert_pct — parsing of percentage strings
 - Data quality incidents caught by tests — commas in counts, nulls from suppression — fixed with cast/replace and strict filtering
-- Performance tuning — DuckDB threads limited to 4; snapshots disabled for static data (duckDB has having issues)
+- Performance tuning — DuckDB threads limited to 4; snapshots disabled for static data (duckDB was having issues)
 - If I did this again — incremental marts, multi-page Streamlit navigation, GitHub Actions CI, probably different data with a more interesting story
 
 
