@@ -17,6 +17,8 @@ venv.bak/
 #  and can be added to the global gitignore or merged into this file. However, if you prefer, 
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
+.dbt/
+profiles.yml
 dbt_packages/
 package-lock.yml
 package-lock.json
@@ -25,3 +27,5 @@ dev_duckdb.db
 logs/
 target/
 snapshots/
+seeds/raw/*.csv
+seeds/raw/*.csv

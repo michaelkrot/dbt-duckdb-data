@@ -4,8 +4,7 @@ config-version: 2
 require-dbt-version: [">=1.10.0", "<2.0.0"]
 profile: duckdb_dbt_project
 
-
-# turning off snapshots as duckdb was hanging
+# Snapshots disabled for static data (avoids overhead on repeated builds)
 snapshots:
   +enabled: false
 
@@ -18,28 +17,29 @@ macro-paths: ["macros"]
 target-path: "target"
 clean-targets:
   - "target"
-  - "dbt-packages"
+  - "dbt_packages"
   - "logs"
 
 models:
-  +threads: 4
   duckdb_dbt_project:
-    +schema: models
     +materialized: table
+    staging:
+      +materialized: view  # Lightweight
     marts:
-      +materialized: table   # Or view if small
-      +schema: marts
+      +materialized: table  # Persistent for dashboard
 
 seeds:
   duckdb_dbt_project:
-    +schema: raw
+    +schema: seeds
+    +exclude:
+      - "raw/*"
     health_data:
       readmissions_seed:
         +column_types:
-          "Year": varchar
-          "Strata": varchar
+          Year: integer
+          Strata: varchar
           "Strata Name": varchar
-          "County": varchar
+          County: varchar
           "Total Admits (ICD-9)": varchar
           "30-day Readmits (ICD-9)": varchar
           "30-day Readmission Rate (ICD-9)": varchar
