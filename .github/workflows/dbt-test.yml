@@ -1,4 +1,4 @@
-name: dbt Test CI
+name: dbt CI
 
 on:
   push:
@@ -7,29 +7,67 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  dbt-ci:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -t dbt-project .
+      # -----------------------------
+      # Cache dbt packages + profiles
+      # -----------------------------
+      - name: Cache dbt packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.dbt
+            dbt_packages
+          key: dbt-${{ hashFiles('packages.yml') }}
 
-      - name: Run dbt deps and test in container
+      # -----------------------------
+      # Docker build with layer cache
+      # -----------------------------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build dbt Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: dbt-project
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # -----------------------------
+      # Create dbt profile for CI
+      # -----------------------------
+      - name: Create dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << 'EOF'
+          duckdb_dbt_project:
+            target: ci
+            outputs:
+              ci:
+                type: duckdb
+                path: /app/data/ci_duckdb.db
+                threads: 4
+          EOF
+
+      # -----------------------------
+      # Run dbt (single container)
+      # -----------------------------
+      - name: Run dbt CI
         run: |
           docker run --rm \
             -v $(pwd):/app \
+            -v ~/.dbt:/root/.dbt \
             -w /app \
-            --entrypoint="" \
-            dbt-project sh -c "dbt deps && dbt test"
-
-      - name: Run dbt build in container (optional)
-        run: |
-          docker run --rm \
-            -v $(pwd):/app \
-            -w /app \
-            --entrypoint="" \
-            dbt-project dbt build
-        if: success()
+            dbt-project \
+            bash -c "
+              dbt debug --target ci &&
+              dbt deps &&
+              dbt build --target ci --fail-fast
+            "
