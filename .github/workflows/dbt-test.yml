@@ -11,63 +11,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------
+      # Checkout code
+      # -----------------------------
       - name: Checkout code
         uses: actions/checkout@v4
 
       # -----------------------------
-      # Cache dbt packages + profiles
+      # Cache dbt packages
       # -----------------------------
       - name: Cache dbt packages
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.dbt
-            dbt_packages
-          key: dbt-${{ hashFiles('packages.yml') }}
-
-      # -----------------------------
-      # Docker build with layer cache
-      # -----------------------------
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build dbt Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          load: true
-          tags: dbt-project
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          path: dbt_packages
+          key: dbt-${{ hashFiles('packages.yml') }}-${{ hashFiles('Dockerfile') }}
 
       # -----------------------------
       # Create dbt profile for CI
       # -----------------------------
-      - name: Create dbt profile
+      - name: Create dbt profile for CI
         run: |
-          mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          duckdb_dbt_project:
-            target: ci
-            outputs:
-              ci:
-                type: duckdb
-                path: /app/data/ci_duckdb.db
-                threads: 4
-          EOF
+          mkdir -p ./data
+          echo -e "duckdb_dbt_project:\n  target: ci\n  outputs:\n    ci:\n      type: duckdb\n      path: /app/data/ci_duckdb.db\n      threads: 4" > ./profiles.yml
 
       # -----------------------------
-      # Run dbt (single container)
+      # Run all dbt commands in a single container
       # -----------------------------
       - name: Run dbt CI
         run: |
           docker run --rm \
             -v $(pwd):/app \
-            -v ~/.dbt:/root/.dbt \
             -w /app \
-            dbt-project \
-            bash -c "
-              dbt debug --target ci &&
-              dbt deps &&
-              dbt build --target ci --fail-fast
+            -v ./profiles.yml:/app/profiles.yml \
+            --entrypoint="" \
+            your-custom-dbt-image \
+            sh -c "
+              set -e
+              dbt debug --target ci
+              dbt deps
+              dbt test --target ci --fail-fast
+              dbt run --target ci --fail-fast
             "
