@@ -27,6 +27,21 @@ jobs:
           key: dbt-${{ hashFiles('packages.yml') }}-${{ hashFiles('Dockerfile') }}
 
       # -----------------------------
+      # Build the custom dbt Docker image
+      # -----------------------------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build dbt Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: dbt-project:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # -----------------------------
       # Create dbt profile for CI
       # -----------------------------
       - name: Create dbt profile for CI
@@ -44,7 +59,7 @@ jobs:
             -w /app \
             -v ./profiles.yml:/app/profiles.yml \
             --entrypoint="" \
-            your-custom-dbt-image \
+            dbt-project:latest \
             sh -c "
               set -e
               dbt debug --target ci
