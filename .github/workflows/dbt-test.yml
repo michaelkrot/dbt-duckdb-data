@@ -22,7 +22,7 @@ jobs:
           docker run --rm \
             -v $(pwd):/app \
             -w /app \
-            --entrypoint="" \  # Bypass entrypoint script
+            --entrypoint="" \
             dbt-project sh -c "dbt deps && dbt test"
 
       - name: Run dbt build in container (optional)

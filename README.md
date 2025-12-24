@@ -22,6 +22,28 @@ The result is a clean, tested analytical mart powering an interactive Streamlit 
 - **Python/pandas** – preprocessing & optional Python models
 - **Docker** – reproducible environment
 
+### Design Decisions & Production Considerations
+
+This project is intentionally designed to mirror real-world production analytics engineering:
+
+- **DuckDB as the engine**: Lightweight, zero-cost, and performant for local/demo use. In production, this pattern translates directly to cloud warehouses (Snowflake/BigQuery/Redshift) — same dbt code, different adapter.
+- **Layered architecture** (staging → marts): Staging as views (ephemeral, low storage), marts as tables (persistent for dashboard reliability).
+- **Early data quality** (shift-left): Suppressed values, malformed percentages, and parsing issues filtered/cleaned in staging to prevent downstream errors.
+- **COALESCE for ICD-9 → ICD-10 unification**: Graceful handling of schema evolution — prefers newer standard while preserving originals for auditability.
+- **Custom generic test** `valid_readmission_rate`: Reusable validation for decimal percentages 
+- **Performance tuning**: DuckDB threads limited to 4; snapshots disabled for static source (avoids unnecessary growth/hangs on repeated builds).
+- **Docker reproducibility**: One-command demo (`both` mode) with volume mounts — mimics containerized deployment while enabling live edits.
+
+**If this ran in production**:
+- Incremental materialization on marts (e.g., daily partitions by year).
+- Scheduled via orchestrator (Airflow, Dagster, or dbt Cloud).
+- Freshness checks on source seed (via sources.yml).
+- CI/CD with GitHub Actions (already included — `dbt test` on push/PR for branches before merging to main).
+- Monitoring/alerting on test failures or stale data.
+
+These choices prioritize reliability, maintainability, and scalability — core principles for team analytics systems.
+
+
 ## Data Source
 Public dataset from California Health and Human Services:  
 [All-Cause Unplanned 30-Day Hospital Readmission Rate, California](https://data.chhs.ca.gov/dataset/all-cause-unplanned-30-day-hospital-readmission-rate-california)
