@@ -31,8 +31,6 @@ models:
 seeds:
   duckdb_dbt_project:
     +schema: seeds
-    +exclude:
-      - "raw/*"
     health_data:
       readmissions_seed:
         +column_types:

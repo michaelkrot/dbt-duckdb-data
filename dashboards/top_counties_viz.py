@@ -15,7 +15,7 @@ con = duckdb.connect("data/dev_duckdb.db", read_only=True)
 @st.cache_data(ttl=3600)
 def load_data():
     return con.execute(
-        "SELECT * FROM dev_marts.fct_readmissions_clean"
+        "SELECT * FROM dev_duckdb.fct_readmissions_clean"
     ).df()
 
 df = load_data()

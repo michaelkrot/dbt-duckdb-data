@@ -1,9 +1,12 @@
 version: 2
 
 sources:
-  - name: seed_data
-    description: "Seed data generally"
-    schema: raw
+  - name: raw
+    description: "Raw public dataset from California hospital readmissions"
     tables:
       - name: readmissions_seed
-        description: "California hospital readmission rates seed data"
+        description: "Original CSV with suppressed '*' values, percentage strings, and ICD-9/ICD-10 columns"
+        loaded_at_field: _loaded_at  # Optional if you add timestamp to seed
+        freshness:
+          warn_after: {count: 365, period: day}
+          error_after: {count: 730, period: day}

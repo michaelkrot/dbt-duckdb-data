@@ -153,9 +153,8 @@ dbt seed --full-refresh
 - dbt-duckdb does not support all_varchar for seeds
 - Explicit column_types used as a workaround
 
-## Future Improvements
+## Future Ideas for  Improvements
+- Better, more meaningful data and analysis
 - Incremental materialization for larger datasets
-- CI with GitHub Actions (dbt test on push)
-- Multi-page Streamlit dashboard
 - Migration to cloud warehouse (Snowflake/BigQuery)
 - pull in some text data to stock the DuckDB for a RAG implementation

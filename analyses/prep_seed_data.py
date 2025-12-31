@@ -23,7 +23,7 @@ def clean_readmissions_data():
     
     # Define paths
     project_root = Path(__file__).parent.parent  # analyses/ -> project root
-    raw_path = project_root / "seeds/raw/allcauseunplanned30-dayhospitalreadmissionratecalifornia2011_2023.csv"
+    raw_path = project_root / "raw_data/allcauseunplanned30-dayhospitalreadmissionratecalifornia2011_2023.csv"
     output_path = project_root / "seeds/health_data/readmissions_seed.csv"
     
     # Validate input exists
