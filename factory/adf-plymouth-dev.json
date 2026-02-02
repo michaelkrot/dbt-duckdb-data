@@ -1,0 +1,9 @@
+{
+	"name": "adf-plymouth-dev",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "1efb2c36-d919-499a-a8ba-997909de7564",
+		"tenantId": "b13abf5b-dfeb-4b6c-b8a4-3767155d77ec"
+	}
+}
